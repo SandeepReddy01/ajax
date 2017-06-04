@@ -1,0 +1,85 @@
+function GetItemByID(leavetypeid) {
+
+                $.ajax({
+                    url: "Handlers/Manage_Leave_Type.ashx?method=getleavetypedetailsbyId&leavetypeid=" + leavetypeid, //make sure the path is correct
+                    cache: false,
+                    type: 'POST',
+                    data: '',
+                    success: function (data) {
+                        var obj = jQuery.parseJSON(data);
+
+                        clear();
+
+                        $("#txtleavename").val(obj.Leave_Name);
+                        $("#txtno_ofleaves").val(obj.No_Of_Leaves.trim());
+                        var Designation = document.getElementById('ddlDesignation');
+                        selectItemByValue(Designation, obj.Designation);
+                        var AcademicYear = document.getElementById('ddlAcademicYear'); 
+                        selectItemByValue(AcademicYear, obj.AcademicYear.trim()); 
+                        var status = document.getElementById('ddlstatus');
+                        selectItemByValue(status, obj.Status);
+                       
+
+                        $("#divLeaveType").fadeIn('fast');
+                        $("#divgrdLeaveType").fadeOut('fast');
+
+                        $("#txtleavetypeid").val(leavetypeid);
+
+                        $("#btnUpdate").fadeIn('fast');
+                        $("#btnSave").fadeOut('fast');
+                        $('#btnClear').hide();
+
+                    },
+                    error: function (xhr, ajaxOpions, thrownError) {
+                        fun_toastr_notify('error', 'Something Went Wrong.....', 'Error');
+                        clear();
+                    }
+                })
+            }
+
+----------------------------------------------------------------------------------------------------------------------$("#btnUpdate").click(function () {
+
+                var jsonData = {
+                    'Leave_ID': $("#txtleavetypeid").val(),
+                    'Leave_Name': $("#txtleavename").val(),
+                    'No_Of_Leaves': $("#txtno_ofleaves").val(),
+                    'Designation': $("#ddlDesignation").val(),
+                    'AcademicYear': $("#ddlAcademicYear").val(),
+                    'Status': $("#ddlstatus").val(),
+
+                }
+
+
+                //note in order to proper pass a json string, you have to use function JSON.stringfy
+                jsonData = JSON.stringify(jsonData);
+
+                $.ajax({
+                    url: "Handlers/Manage_Leave_Type.ashx?method=updateleavetypedetails", //make sure the path is correct
+                    cache: false,
+                    type: 'POST',
+                    data: jsonData,
+                    success: function (response) {
+
+                        if (response == "Success") {
+
+                            //output the response from server
+                            fun_toastr_notify('success', 'Leave Type Updated successfully', response);
+
+                            $("#divLeaveType").hide();
+                            $("#divgrdLeaveType").fadeIn('fast');
+                        }
+                        else
+                            fun_toastr_notify('error', response, 'Error');
+                        //clear();
+                        GetLeaveType();
+                        //we clean up the data
+
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        fun_toastr_notify('error', 'Something Went Wrong.....', 'Error');
+                        //clear();
+                    }
+                })
+
+
+            });
